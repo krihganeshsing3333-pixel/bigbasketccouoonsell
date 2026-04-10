@@ -1,0 +1,181 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Coupon Store</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: linear-gradient(135deg, #1f4037, #99f2c8);
+    color: #fff;
+    text-align: center;
+    padding: 30px;
+}
+
+.container {
+    background: #000000cc;
+    padding: 20px;
+    border-radius: 15px;
+    max-width: 400px;
+    margin: auto;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    background: #00ffae;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.paybtn {
+    background: #ffcc00;
+    color: black;
+    font-weight: bold;
+}
+
+input {
+    padding: 10px;
+    width: 80%;
+    margin-top: 10px;
+    border-radius: 10px;
+    border: none;
+}
+
+.hidden {
+    display: none;
+}
+
+img {
+    margin-top: 10px;
+    border-radius: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🛍 Coupon Store</h2>
+
+<p>👉 BigBasket Coupons</p>
+<p>💰 ₹20 per code</p>
+<p>⚠ Minimum order: 10</p>
+
+<input type="number" id="qty" placeholder="Enter quantity" min="10">
+
+<br>
+<button onclick="generatePayment()">Buy Now</button>
+
+<div id="paymentSection" class="hidden">
+    <h3>💳 Payment</h3>
+    <p id="amount"></p>
+
+    <p>📲 UPI ID: <b>mohammedanasmohmedhussain@oksbi</b></p>
+
+    <img id="qr" src="payment.png" width="200">
+
+    <br>
+
+    <a id="paylink" href="#">
+        <button class="paybtn">📲 Pay Now</button>
+    </a>
+
+    <p>After payment, enter UTR:</p>
+    <input type="text" id="utr" placeholder="Enter 12-digit UTR" maxlength="12">
+    <button onclick="verifyPayment()">Submit</button>
+</div>
+
+<div id="result" class="hidden"></div>
+
+</div>
+
+<script>
+
+// Coupon stock
+let coupons = [
+"BBTREAT02-009CERT2TW1M52R",
+"BBTREAT02-A7M4P2X8L1Q9Z3K",
+"BBTREAT02-B1Z6M8Q2T4L9P7K",
+"BBTREAT02-C8Q3L9M5T9P1Z7K",
+"BBTREAT02-D2M7X4Q9L8T3Z1K",
+"BBTREAT02-E6T3M9Z1P7L2Q8K",
+"BBTREAT02-F9L5X2Q7M2T1Z8K",
+"BBTREAT02-G3Q8T6M1Z6L2P7K",
+"BBTREAT02-H7M4P2X8L3Q1Z9K",
+"BBTREAT02-J1Z6M8Q2T8L3P7K",
+"BBTREAT02-K8Q3L9M5T1P2Z7K",
+"BBTREAT02-L2M7X4Q9L5T1Z8K",
+"BBTREAT02-M6T3M9Z1P3L2Q7K",
+"BBTREAT02-N9L5X2Q7M6T1Z8K",
+"BBTREAT02-O3Q8T6M1Z8L2P7K",
+"BBTREAT02-P7M4P2X8L4Q1Z9K",
+"BBTREAT02-Q1Z6M8Q2T1L3P7K",
+"BBTREAT02-R8Q3L9M5T8P1Z7K",
+"BBTREAT02-S2M7X4Q9L2T3Z1K",
+"BBTREAT02-T6T3M9Z1P9L2Q7K",
+"BBTREAT02-U9L5X2Q7M5T1Z8K"
+];
+
+let selectedQty = 0;
+
+// SETTINGS
+const MIN_QTY = 10;
+const PRICE = 20;
+const UPI_ID = "mohammedanasmohmedhussain@oksbi";
+
+function generatePayment() {
+    let qty = parseInt(document.getElementById("qty").value);
+
+    if (isNaN(qty) || qty < MIN_QTY) {
+        alert("Please enter at least 10 coupons");
+        return;
+    }
+
+    if (qty > coupons.length) {
+        alert("Not enough coupons available");
+        return;
+    }
+
+    selectedQty = qty;
+    let total = qty * PRICE;
+
+    document.getElementById("amount").innerText = "Total: ₹" + total;
+
+    let upiLink = `upi://pay?pa=${UPI_ID}&pn=CouponStore&am=${total}&cu=INR`;
+    document.getElementById("paylink").href = upiLink;
+
+    document.getElementById("paymentSection").classList.remove("hidden");
+}
+
+function verifyPayment() {
+    let utr = document.getElementById("utr").value.trim();
+
+    // ✅ Only 12 digit numbers allowed
+    let pattern = /^[0-9]{12}$/;
+
+    if (!pattern.test(utr)) {
+        alert("❌ UTR must be exactly 12 digits (numbers only)");
+        return;
+    }
+
+    let givenCodes = coupons.splice(0, selectedQty);
+
+    // ✅ Combine coupon + UTR
+    let combinedCodes = givenCodes.map(code => code + "" );
+
+    document.getElementById("result").classList.remove("hidden");
+    document.getElementById("result").innerHTML =
+        "<h3>✅ Payment Submitted</h3>" +
+        "<p>⏳ UTR under verification</p>" +
+        "<p>🎟 Your Coupons:</p>" +
+        "<b>" + combinedCodes.join("<br>") + "</b>";
+}
+
+</script>
+
+</body>
+</html>
